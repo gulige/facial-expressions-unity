@@ -5,13 +5,18 @@ using UnityEngine;
 namespace Mochineko.FacialExpressions.LipSync
 {
     /// <summary>
-    /// An implementation of <see cref="ILipMorpher"/> that uses <see cref="SkinnedMeshRenderer"/>.
+    /// An implementation of <see cref="ILipMorpher"/> to morph lip by <see cref="SkinnedMeshRenderer"/>.
     /// </summary>
     public sealed class SkinnedMeshLipMorpher : ILipMorpher
     {
         private readonly SkinnedMeshRenderer skinnedMeshRenderer;
         private readonly IReadOnlyDictionary<Viseme, int> indexMap;
 
+        /// <summary>
+        /// Creates a new instance of <see cref="SkinnedMeshLipMorpher"/>.
+        /// </summary>
+        /// <param name="skinnedMeshRenderer">Target renderer.</param>
+        /// <param name="indexMap">Map of viseme to blend shape index.</param>
         public SkinnedMeshLipMorpher(
             SkinnedMeshRenderer skinnedMeshRenderer,
             IReadOnlyDictionary<Viseme, int> indexMap)
@@ -24,7 +29,7 @@ namespace Mochineko.FacialExpressions.LipSync
         {
             if (indexMap.TryGetValue(sample.viseme, out var index))
             {
-                skinnedMeshRenderer.SetBlendShapeWeight(index, sample.weight);
+                skinnedMeshRenderer.SetBlendShapeWeight(index, sample.weight * 100f);
             }
             else if (sample.viseme is Viseme.sil)
             {
@@ -34,16 +39,22 @@ namespace Mochineko.FacialExpressions.LipSync
 
         public float GetWeightOf(Viseme viseme)
         {
-            throw new System.NotImplementedException();
+            if (indexMap.TryGetValue(viseme, out var index))
+            {
+                return skinnedMeshRenderer.GetBlendShapeWeight(index) / 100f;
+            }
+            else
+            {
+                return 0f;
+            }
         }
 
         public void Reset()
         {
-            MorphInto(new LipSample(Viseme.aa, 0f));
-            MorphInto(new LipSample(Viseme.ih, 0f));
-            MorphInto(new LipSample(Viseme.ou, 0f));
-            MorphInto(new LipSample(Viseme.E, 0f));
-            MorphInto(new LipSample(Viseme.oh, 0f));
+            foreach (var pair in indexMap)
+            {
+                skinnedMeshRenderer.SetBlendShapeWeight(pair.Value, 0f);
+            }
         }
     }
 }

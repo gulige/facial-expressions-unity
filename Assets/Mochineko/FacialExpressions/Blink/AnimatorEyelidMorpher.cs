@@ -5,13 +5,18 @@ using UnityEngine;
 namespace Mochineko.FacialExpressions.Blink
 {
     /// <summary>
-    /// A simple implementation of <see cref="IEyelidMorpher"/> for <see cref="Animation"/>.
+    /// A simple implementation of <see cref="IEyelidMorpher"/> for <see cref="Animator"/>.
     /// </summary>
     public sealed class AnimatorEyelidMorpher : IEyelidMorpher
     {
         private readonly Animator animator;
         private readonly IReadOnlyDictionary<Eyelid, int> idMap;
 
+        /// <summary>
+        /// Creates a new instance of <see cref="AnimatorEyelidMorpher"/>.
+        /// </summary>
+        /// <param name="animator">Target animator.</param>
+        /// <param name="idMap">Map of eyelid to animator float key.</param>
         public AnimatorEyelidMorpher(
             Animator animator,
             IReadOnlyDictionary<Eyelid, int> idMap)
@@ -42,9 +47,10 @@ namespace Mochineko.FacialExpressions.Blink
 
         public void Reset()
         {
-            MorphInto(new EyelidSample(Eyelid.Both, 0f));
-            MorphInto(new EyelidSample(Eyelid.Left, 0f));
-            MorphInto(new EyelidSample(Eyelid.Right, 0f));
+            foreach (var id in idMap.Values)
+            {
+                animator.SetFloat(id, 0f);
+            }
         }
     }
 }

@@ -5,13 +5,18 @@ using UnityEngine;
 namespace Mochineko.FacialExpressions.LipSync
 {
     /// <summary>
-    /// An implementation of <see cref="ILipMorpher"/> that uses <see cref="Animator"/>.
+    /// An implementation of <see cref="ILipMorpher"/> to morph lip by <see cref="Animator"/>.
     /// </summary>
     public sealed class AnimatorLipMorpher : ILipMorpher
     {
         private readonly Animator animator;
         private readonly IReadOnlyDictionary<Viseme, int> idMap;
 
+        /// <summary>
+        /// Creates a new instance of <see cref="AnimatorLipMorpher"/>.
+        /// </summary>
+        /// <param name="animator">Target animator.</param>
+        /// <param name="idMap">Map of viseme to animator float key.</param>
         public AnimatorLipMorpher(
             Animator animator,
             IReadOnlyDictionary<Viseme, int> idMap)
@@ -46,11 +51,10 @@ namespace Mochineko.FacialExpressions.LipSync
 
         public void Reset()
         {
-            MorphInto(new LipSample(Viseme.aa, 0f));
-            MorphInto(new LipSample(Viseme.ih, 0f));
-            MorphInto(new LipSample(Viseme.ou, 0f));
-            MorphInto(new LipSample(Viseme.E, 0f));
-            MorphInto(new LipSample(Viseme.oh, 0f));
+            foreach (var pair in idMap)
+            {
+                animator.SetFloat(pair.Value, 0f);
+            }
         }
     }
 }
